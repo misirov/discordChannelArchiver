@@ -23,3 +23,5 @@ This is a quick dirty hack to retrieve comments from a channel. Discord API limi
 w1zard@w1zard ~/discordArchiveBot (master)
 └─ $ node main.js 1024716983767400548
 ```
+Example output:
+![image](https://user-images.githubusercontent.com/47452703/221951993-8160bff0-3bc6-4d36-9cc6-95efc5a0d478.png)
