@@ -15,7 +15,7 @@ client.once(Events.ClientReady, async c => {
 
     Logged in as bot: ${c.user.tag}
     Passed channel id: ${channel_id}
-    `)
+    `);
 
     var listOfMessageObjects = [];
     var channelObject = {};
@@ -23,7 +23,7 @@ client.once(Events.ClientReady, async c => {
     try {
         const channel = await client.channels.fetch(channel_id);
         const messages = await channel.messages.fetch({ limit: 100 });
-        console.log(`Fetching ${messages.size} messages from ${channel.name}`)
+        console.log(`Fetching ${messages.size} messages from ${channel.name}`);
 
         messages.forEach(message => {
             let unixTimestamp = message.createdTimestamp;
@@ -34,77 +34,24 @@ client.once(Events.ClientReady, async c => {
                 "User": message.author.username,
                 "Content": message.content,
                 "Date": formattedDate
-            }
+            };
 
             listOfMessageObjects.push(messageObject);
         });
 
-        channelObject = {
-            "Channel Name": channel.name,
-            "Channel Members": channel.members,
-            "Number of Messages": messages.size,
-            "Messages": listOfMessageObjects
-        }
+        var md = listOfMessageObjects.map(messageObject =>
+            `${messageObject.Date} **${messageObject.User}:** ${messageObject.Content}`).join('\n\n');
 
-        // Create HTML table with messages
-        let tableHtml = "<table><tr><th>User</th><th>Message</th><th>Date</th></tr>";
-        listOfMessageObjects.forEach(message => {
-            tableHtml += `<tr><td>${message.User}</td><td>${message.Content}</td><td>${message.Date}</td></tr>`;
-        });
-        tableHtml += "</table>";
-
-        // Create full HTML file with table
-        var html = `<html>
-    <head>
-        <title> Spearbit Discord channel: ${channel.name} </title>
-        <style>
-            table {
-                border-collapse: collapse;
-                width: 100%;
-            }
-            th, td {
-                text-align: left;
-                padding: 8px;
-                border-bottom: 1px solid #ddd;
-            }
-            th {
-                background-color: #f2f2f2;
-            }
-        </style>
-    </head>
-        <body>
-            <h1>Channel: ${channel.name}</h1>
-            <table>
-                <thead>
-                    <tr>
-                        <th>User</th>
-                        <th>Content</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${listOfMessageObjects.map(messageObject => `
-                    <tr>
-                        <td>${messageObject.User}</td>
-                        <td>${messageObject.Content}</td>
-                        <td>${messageObject.Date}</td>
-                    </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        </body>
-    </html>`
-
-        fs.writeFile(`${channel.name}.html`, html, (err) => {
+        fs.writeFile(`${channel.name}.md`, md, (err) => {
             if (err) {
                 throw err;
             }
-            console.log('Finished writing to file. Exit with CTRL+C')
-        })
+            console.log('Finished writing to file. Exit with CTRL+C');
+        });
 
     }
     catch (e) {
-        console.log(`--- An error has occured ---\n${e}`)
+        console.log(`--- An error has occured ---\n${e}`);
     }
 
 });
