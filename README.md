@@ -23,5 +23,6 @@ A simple script to archive messages from a Discord channel. It overcomes Discord
 To run the script, pass the channel ID as an argument:
 
 ```sh
-$ node main.js <channel_id> [html]
+$ node main.js [html]
+'Channel ID > <YOUR_CHANNEL_ID>'
 ```
