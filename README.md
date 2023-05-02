@@ -1,25 +1,26 @@
-# Discord channel archiver
+# Discord Channel Archiver
 
-This is a quick dirty hack to retrieve comments from a channel. Discord API limit is 100 so if you want to retrieve more than 100 comments, need to re-run it while specifying the range of messages to retrieve.
+A simple script to archive messages from a Discord channel. It overcomes Discord API's 100-message limit by fetching messages in batches. The script generates an output file in Markdown or HTML format, containing all the messages from the specified channel.
 
-### Steps:
+## Setup
 
-1. Create a *new application* in `https://discord.com/developers/applications`
-2. Bot > Add bot
-3. Copy the Token and mark all `Privileged Gateaway Intents`
-- Making the bot public means that anyone with the link can add it to their server. For example, you make a bot and i can add it to my server. Otherwise only you can add it.
-4. In OAut2 mark the following perms
-- Scopes: `bot`
-- Bot Permissions: `Read Messages/View Channels` and `Read Message History`
-5. Copy the Generated URL and add the bot to the server.
-- `https://discord.com/api/oauth2/authorize?client_id=<BOT_ID>&permissions=66560&scope=bot`
-6. Git clone this repo and install these dependencies
-- `discord.js`
-- `dotenv`
-7. Make a `.env` file and input the token 
-8. With the bot inside the server, copy the channel ID and pass it as argument to the script
-9. Run it. The script generates an HTML file
-```javascript
-w1zard@w1zard ~/discordArchiveBot (master)
-└─ $ node main.js 1024716983767400548
-```
+1. Go to [Discord Developer Portal](https://discord.com/developers/applications) and create a new application.
+2. Navigate to the `Bot` tab and click `Add Bot`.
+3. Copy the token and enable all `Privileged Gateway Intents`.
+4. In the `OAuth2` tab, configure the following permissions:
+    - Scopes: `bot`
+    - Bot Permissions: `Read Messages/View Channels` and `Read Message History`
+5. Copy the generated URL and add the bot to your server.
+    - `https://discord.com/api/oauth2/authorize?client_id=<BOT_ID>&permissions=66560&scope=bot`
+6. Clone this repository and install the required dependencies:
+    - `discord.js`
+    - `dotenv`
+7. Create a `.env` file in the project directory and input your bot token.
+8. With the bot added to your server, copy the desired channel ID.
+
+## Usage
+
+To run the script, pass the channel ID as an argument:
+
+```sh
+$ node main.js <channel_id> [html]
