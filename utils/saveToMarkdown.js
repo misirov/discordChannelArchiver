@@ -1,6 +1,6 @@
 /**
  * Save all messages to a markdown file
- */
+**/
 
 const fs = require('fs');
 const path = require('path');
