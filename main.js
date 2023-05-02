@@ -20,7 +20,6 @@
  * node main.js 123456789012345678 html
 **/
 
-
 const { Client, Events, GatewayIntentBits } = require('discord.js');
 const fetchAllChannelMessages = require('./utils/fetchAllChannelMessages.js');
 const saveToMarkdown = require('./utils/saveToMarkdown.js');
@@ -34,7 +33,7 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 client.once(Events.ClientReady, async c => {
     // Get command line arguments
     const channel_id = args[0];
-    const outputFormat = args[1];
+    const fileType = args[1] || 'md';
     try {
         const channel = await client.channels.fetch(channel_id);
         const messages = await fetchAllChannelMessages(channel);
@@ -43,20 +42,27 @@ client.once(Events.ClientReady, async c => {
         const listOfMessageObjects = messages.map(message => {
             const date = new Date(message.createdTimestamp);
             const formattedDate = date.toLocaleDateString("en-US");
+            const attachments = message.attachments;
+            attachment_list = []
+            attachments.map(attachment => {
+                attachment_list.push(attachment)
+            })
 
             return {
                 User: message.author.username,
                 Content: message.content,
                 Date: formattedDate,
+                Attachment: attachments
             };
         });
 
         // save as markdown by default
-        if (outputFormat == undefined) {
-            saveToMarkdown(channel, listOfMessageObjects)
-        } else if (outputFormat == 'html') {
+        if (fileType == 'html') {
             saveToHtml(channel, listOfMessageObjects)
+        } else {
+            saveToMarkdown(channel, listOfMessageObjects)
         }
+
 
     } catch (e) {
         console.log(`--- An error has occurred ---\n${e}`);
@@ -64,3 +70,4 @@ client.once(Events.ClientReady, async c => {
 });
 
 client.login(process.env.TOKEN);
+

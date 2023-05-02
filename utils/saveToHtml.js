@@ -66,6 +66,7 @@ module.exports = function saveToHtml(channel, listOfMessageObjects) {
     }
 
     fs.writeFile(filePath, html, (err) => {
+        console.log('saving as html...')
         if (err) {
             throw err;
         }
