@@ -66,10 +66,10 @@ module.exports = function saveToHtml(channel, listOfMessageObjects) {
     }
 
     fs.writeFile(filePath, html, (err) => {
-        console.log('saving as html...')
+        console.log('\nsaving as html...')
         if (err) {
             throw err;
         }
-        console.log(`Finished writing to file: ${filePath}. Exit with CTRL+C`);
+        process.stdout.write(`Finished writing to file: ${filePath}. \n---> Exit with CTRL+C or enter another channel ID > `);
     });
 }
