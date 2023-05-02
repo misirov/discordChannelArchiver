@@ -32,17 +32,6 @@ require('dotenv').config()
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.once(Events.ClientReady, async c => {
-    console.log(
-        `\nPass a channel id to fetch al messages.:
-    --> https://discord.com/channels/<server_id>/<channel_id>
-
-    Logged in as bot: ${c.user.tag}
-    Passed channel id: ${channel_id}
-    `);
-
-    var listOfMessageObjects = [];
-    var channelObject = {};
-
     // Get command line arguments
     const channel_id = args[0];
     const outputFormat = args[1];
