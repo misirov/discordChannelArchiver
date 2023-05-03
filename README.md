@@ -24,5 +24,5 @@ To run the script, pass the channel ID as an argument:
 
 ```sh
 $ node main.js [html]
-'Channel ID > <YOUR_CHANNEL_ID>'
+Channel ID > <YOUR_CHANNEL_ID>
 ```

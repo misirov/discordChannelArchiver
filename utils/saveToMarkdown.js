@@ -5,7 +5,6 @@
  * @param {Array} listOfMessageObjects - An array of message objects containing user, content, date, and attachment properties.
 **/
 
-
 const fs = require('fs');
 const path = require('path');
 
@@ -40,9 +39,10 @@ module.exports = function saveToMarkdown(channel, listOfMessageObjects) {
         fs.writeFile(filePath, md, err => {
             console.log('\nsaving as markdown...')
             if (err) {
-                throw err;
+                reject(err);
             }
-            process.stdout.write(`Finished writing to file: ${filePath}. \n---> Exit with CTRL+C or enter another channel ID > `);
+            process.stdout.write(`\nFinished writing to file: ${filePath}. \nEnter another channel ID or type 'push' > `);
+            resolve();
         });
 
     })

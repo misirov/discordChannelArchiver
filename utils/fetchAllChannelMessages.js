@@ -25,5 +25,3 @@ module.exports = async function fetchAllChannelMessages(channel) {
 
     return sum_messages;
 }
-
-

@@ -1,15 +1,17 @@
 /**
  * Discord Archivoooor - A tool for archiving Discord channel messages.
  *
- * This script fetches all messages from a specified Discord channel and saves them to a file in Markdown format.
- * If 'html' is passed as command-line argument, the output file will be in HTML format.
- *
+ * - This script fetches all messages from a specified Discord channel and saves them to a file in Markdown format.
+ * - If 'html' is passed as command-line argument, the output file will be in HTML format.
+ * - If a remote repository is provided, files can be pushed to it.
+ * 
  * The output file will be saved in the 'output' directory as 'channelName_channel.md' or 'channelName_channel.html'.
  *
  * Usage:
- * 1. Install dependencies by running 'npm install'.
- * 2. Set up your Discord bot token in a '.env' file (see '.env.example' for reference).
- * 3. Run the script by passing the channel ID as an argument: 'node main.js [html]'
+ *      1. Install dependencies by running 'npm install'.
+ *      2. Set up your Discord bot token in a '.env' file (see '.env.example' for reference).
+ *      3. Run the script by passing the channel ID as an argument: 'node main.js [html]'
+ *      4. [OPTIONAL] set up a repo, get a github token and push files.
  *
  * @example
  * // Archive messages in Markdown format
@@ -18,15 +20,17 @@
  * @example
  * // Archive messages in HTML format
  * node main.js html
- **/
+**/
 
 const { Client, Events, GatewayIntentBits } = require('discord.js');
 const fetchAllChannelMessages = require('./utils/fetchAllChannelMessages.js');
 const saveToMarkdown = require('./utils/saveToMarkdown.js');
 const saveToHtml = require('./utils/saveToHtml.js');
+const pushToGitHub = require('./utils/pushToGithub.js');
 const args = process.argv.slice(2);
 const readline = require('readline');
 require('dotenv').config();
+
 
 // Create a new client instance with read-only permissions related to message history
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -46,41 +50,51 @@ client.once(Events.ClientReady, async c => {
 
     // Listen for user input and fetch channel messages
     rl.on('line', async (input) => {
-        const channel_id = input.trim();
-        try {
-            const channel = await client.channels.fetch(channel_id);
-            const messages = await fetchAllChannelMessages(channel);
+        // @userInput channel ID, channel messages will be fetched and saved
+        // @userInput 'push', will clone and push saved channels to remote repository
+        userInput = input.trim()
+        if (userInput != 'push') {
+            try {
+                const channel_id = userInput;
+                const channel = await client.channels.fetch(channel_id);
+                const messages = await fetchAllChannelMessages(channel);
 
-            console.log(`\nFetched ${messages.length} messages from ${channel.name}`);
-            console.log('\nCreating message object...')
-            attachment_list = [];
-            const listOfMessageObjects = messages.map(message => {
-                const date = new Date(message.createdTimestamp);
-                const formattedDate = date.toLocaleDateString("en-US");
-                const attachments = message.attachments;
-                attachments.map(attachment => {
-                    attachment_list.push(attachment);
+                console.log(`\nFetched ${messages.length} messages from ${channel.name}`);
+                console.log('\nCreating message object...')
+                attachment_list = [];
+                const listOfMessageObjects = messages.map(message => {
+                    const date = new Date(message.createdTimestamp);
+                    const formattedDate = date.toLocaleDateString("en-US");
+                    const attachments = message.attachments;
+                    attachments.map(attachment => {
+                        attachment_list.push(attachment);
+                    });
+
+                    return {
+                        User: message.author.username,
+                        Content: message.content,
+                        Date: formattedDate,
+                        Attachment: attachments
+                    };
                 });
 
-                return {
-                    User: message.author.username,
-                    Content: message.content,
-                    Date: formattedDate,
-                    Attachment: attachments
-                };
-            });
+                // Save messages in the specified format (Markdown by default, HTML if specified)
+                if (fileType == 'html') {
+                    saveToHtml(channel, listOfMessageObjects);
+                } else {
+                    await saveToMarkdown(channel, listOfMessageObjects);
+                }
 
-            // Save messages in the specified format (Markdown by default, HTML if specified)
-            if (fileType == 'html') {
-                saveToHtml(channel, listOfMessageObjects);
-            } else {
-                await saveToMarkdown(channel, listOfMessageObjects);
+            } catch (e) {
+                console.log(`--- An error has occurred ---\n${e}`);
             }
 
-        } catch (e) {
-            console.log(`--- An error has occurred ---\n${e}`);
+
+        } else {
+            console.log(`Pushing contents in output directory to ${process.env.REPO_URL} ...`)
+            pushToGitHub(fileType)
         }
-        console.log('Enter another channel ID or press CTRL+C to exit.');
+
     });
 
     // Close event listener for exiting the program
