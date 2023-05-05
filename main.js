@@ -24,7 +24,8 @@
 
 const { Client, Events, GatewayIntentBits } = require('discord.js');
 const fetchAllChannelMessages = require('./utils/fetchAllChannelMessages.js');
-const saveToMarkdown = require('./utils/saveToMarkdown.js');
+const { getThreadMessages, getChannelMessages } = require('./utils/getMessages.js')
+const { saveToMarkdown, saveThreadToMarkdown } = require('./utils/saveToMarkdown.js');
 const saveToHtml = require('./utils/saveToHtml.js');
 const pushToGitHub = require('./utils/pushToGithub.js');
 const args = process.argv.slice(2);
@@ -59,34 +60,25 @@ client.once(Events.ClientReady, async c => {
                 const channel = await client.channels.fetch(channel_id);
                 const messages = await fetchAllChannelMessages(channel);
 
-                console.log(`\nFetched ${messages.length} messages from ${channel.name}`);
-                console.log('\nCreating message object...')
-                attachment_list = [];
-                const listOfMessageObjects = messages.map(message => {
-                    const date = new Date(message.createdTimestamp);
-                    const formattedDate = date.toLocaleDateString("en-US");
-                    const attachments = message.attachments;
-                    attachments.map(attachment => {
-                        attachment_list.push(attachment);
-                    });
+                const fetchedThreads = await channel.threads.fetch()
+                const threads = fetchedThreads.threads
 
-                    return {
-                        User: message.author.username,
-                        Content: message.content,
-                        Date: formattedDate,
-                        Attachment: attachments
-                    };
-                });
+
+                const threadMessagesObject = await getThreadMessages(channel, threads)
+
+                const channelMessagesObject = await getChannelMessages(messages, channel);
+
 
                 // Save messages in the specified format (Markdown by default, HTML if specified)
                 if (fileType == 'html') {
-                    saveToHtml(channel, listOfMessageObjects);
+                    saveToHtml(channel, channelMessagesObject);
                 } else {
-                    await saveToMarkdown(channel, listOfMessageObjects);
+                    await saveToMarkdown(channel, channelMessagesObject);
+                    await saveThreadToMarkdown(channel, threads, threadMessagesObject);
                 }
 
             } catch (e) {
-                console.log(`--- An error has occurred ---\n${e}`);
+                console.log(`--- An error has occurred ---\n${e.stack}`);
             }
 
 

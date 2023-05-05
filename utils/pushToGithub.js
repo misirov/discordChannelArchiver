@@ -5,6 +5,8 @@
  * @returns array of messages
 **/
 
+// @TODO: NEED TO MOVE ALL THE FILES + FIRS TO REPO BEFORE PUSHING
+
 const git = require('simple-git');
 const path = require('path');
 const fs = require('fs')
