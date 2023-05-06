@@ -25,7 +25,7 @@
 const { Client, Events, GatewayIntentBits } = require('discord.js');
 const fetchAllChannelMessages = require('./utils/fetchAllChannelMessages.js');
 const { getThreadMessages, getChannelMessages } = require('./utils/getMessages.js')
-const { saveToMarkdown, saveThreadToMarkdown } = require('./utils/saveToMarkdown.js');
+const { saveChannelToMarkdown, saveThreadToMarkdown } = require('./utils/saveToMarkdown.js');
 const saveToHtml = require('./utils/saveToHtml.js');
 const pushToGitHub = require('./utils/pushToGithub.js');
 const args = process.argv.slice(2);
@@ -51,7 +51,7 @@ client.once(Events.ClientReady, async c => {
 
     // Listen for user input and fetch channel messages
     rl.on('line', async (input) => {
-        // @userInput channel ID, channel messages will be fetched and saved
+        // @userInput channel ID, channel messages + threads will be fetched and saved
         // @userInput 'push', will clone and push saved channels to remote repository
         userInput = input.trim()
         if (userInput != 'push') {
@@ -63,8 +63,7 @@ client.once(Events.ClientReady, async c => {
                 const fetchedThreads = await channel.threads.fetch()
                 const threads = fetchedThreads.threads
 
-
-                const threadMessagesObject = await getThreadMessages(channel, threads)
+                const threadMessagesObject = await getThreadMessages(threads)
 
                 const channelMessagesObject = await getChannelMessages(messages, channel);
 
@@ -73,7 +72,7 @@ client.once(Events.ClientReady, async c => {
                 if (fileType == 'html') {
                     saveToHtml(channel, channelMessagesObject);
                 } else {
-                    await saveToMarkdown(channel, channelMessagesObject);
+                    await saveChannelToMarkdown(channel, channelMessagesObject);
                     await saveThreadToMarkdown(channel, threads, threadMessagesObject);
                 }
 
