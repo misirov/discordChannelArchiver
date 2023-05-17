@@ -1,6 +1,8 @@
 # Discord Channel Archiver
 
-A simple script to archive messages from a Discord channel. It overcomes Discord API's 100-message limit by fetching messages in batches. The script generates an output file in Markdown or HTML format, containing all the messages from the specified channel.
+A simple script to archive messages and threads from a Discord channel. It overcomes Discord API's 100-message limit by fetching messages in batches. The script generates an output file in Markdown or HTML format, containing all the messages from the specified channel.
+
+It also supports pushing the saved files to a github repository.
 
 ## Setup
 
@@ -25,4 +27,5 @@ To run the script, pass the channel ID as an argument:
 ```sh
 $ node main.js [html]
 Channel ID > <YOUR_CHANNEL_ID>
+> push
 ```
