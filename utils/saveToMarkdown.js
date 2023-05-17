@@ -52,7 +52,7 @@ async function saveChannelToMarkdown(channel, listOfMessageObjects) {
 
 
 
-async function saveThreadToMarkdown(channel, thread, listOfMessageObjects) {
+async function saveThreadToMarkdown(channel, listOfMessageObjects) {
     return new Promise((resolve, reject) => {
         // Flatten the listOfMessageObjects one level to create a single list of message objects for easier processing and saving
         const x = listOfMessageObjects.flat().map(messageObject => {
@@ -74,11 +74,7 @@ async function saveThreadToMarkdown(channel, thread, listOfMessageObjects) {
                 }).join('\n');
             }
 
-            console.log(`${messageText}\n${attachmentsInfo}`);
-
             var md = `${messageText}\n${attachmentsInfo}`;
-
-
             const outputDir = `output/${channel.name}_${messageObject.ThreadName}_thread`;
             const fileName = `${messageObject.ThreadName}_thread.md`;
             const filePath = path.join(outputDir, fileName);
@@ -96,17 +92,15 @@ async function saveThreadToMarkdown(channel, thread, listOfMessageObjects) {
                 resolve();
             });
 
-            // return `${messageText}\n${attachmentsInfo}`;
 
         }).join('\n\n');
 
     })
 }
 
+
+
 module.exports = {
     saveChannelToMarkdown,
     saveThreadToMarkdown
 }
-
-
-

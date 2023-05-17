@@ -44,13 +44,13 @@ async function getThreadMessages(threads) {
         const listOfThreadObject = threadMessages.map(message => {
             const date = new Date(message.createdTimestamp);
             const formattedDate = date.toLocaleDateString("en-US");
-            let attachments = message.attachments; // Declare attachments with let
+            let attachments = message.attachments;
             return {
                 ThreadName: thread.name,
                 User: message.author.username,
                 Content: message.content,
                 Date: formattedDate,
-                Attachment: attachments//attachmentsArray // Return attachmentList instead of attachments
+                Attachment: attachments // Return attachmentList instead of attachments
             };
 
         })

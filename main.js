@@ -59,21 +59,17 @@ client.once(Events.ClientReady, async c => {
                 const channel_id = userInput;
                 const channel = await client.channels.fetch(channel_id);
                 const messages = await fetchAllChannelMessages(channel);
-
                 const fetchedThreads = await channel.threads.fetch()
                 const threads = fetchedThreads.threads
-
                 const threadMessagesObject = await getThreadMessages(threads)
-
                 const channelMessagesObject = await getChannelMessages(messages, channel);
-
 
                 // Save messages in the specified format (Markdown by default, HTML if specified)
                 if (fileType == 'html') {
                     saveToHtml(channel, channelMessagesObject);
                 } else {
                     await saveChannelToMarkdown(channel, channelMessagesObject);
-                    await saveThreadToMarkdown(channel, threads, threadMessagesObject);
+                    await saveThreadToMarkdown(channel, threadMessagesObject);
                 }
 
             } catch (e) {
