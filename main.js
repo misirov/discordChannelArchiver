@@ -24,9 +24,10 @@
 
 const { Client, Events, GatewayIntentBits } = require('discord.js');
 const fetchAllChannelMessages = require('./utils/fetchAllChannelMessages.js');
-const saveToMarkdown = require('./utils/saveToMarkdown.js');
+const { getThreadMessages, getChannelMessages } = require('./utils/getMessages.js')
+const { saveChannelToMarkdown, saveThreadToMarkdown } = require('./utils/saveToMarkdown.js');
 const saveToHtml = require('./utils/saveToHtml.js');
-const pushToGitHub = require('./utils/pushToGithub.js');
+const { pushToGitHub } = require('./utils/pushToGithub.js');
 const args = process.argv.slice(2);
 const readline = require('readline');
 require('dotenv').config();
@@ -50,7 +51,7 @@ client.once(Events.ClientReady, async c => {
 
     // Listen for user input and fetch channel messages
     rl.on('line', async (input) => {
-        // @userInput channel ID, channel messages will be fetched and saved
+        // @userInput channel ID, channel messages + threads will be fetched and saved
         // @userInput 'push', will clone and push saved channels to remote repository
         userInput = input.trim()
         if (userInput != 'push') {
@@ -58,35 +59,21 @@ client.once(Events.ClientReady, async c => {
                 const channel_id = userInput;
                 const channel = await client.channels.fetch(channel_id);
                 const messages = await fetchAllChannelMessages(channel);
-
-                console.log(`\nFetched ${messages.length} messages from ${channel.name}`);
-                console.log('\nCreating message object...')
-                attachment_list = [];
-                const listOfMessageObjects = messages.map(message => {
-                    const date = new Date(message.createdTimestamp);
-                    const formattedDate = date.toLocaleDateString("en-US");
-                    const attachments = message.attachments;
-                    attachments.map(attachment => {
-                        attachment_list.push(attachment);
-                    });
-
-                    return {
-                        User: message.author.username,
-                        Content: message.content,
-                        Date: formattedDate,
-                        Attachment: attachments
-                    };
-                });
+                const fetchedThreads = await channel.threads.fetch()
+                const threads = fetchedThreads.threads
+                const threadMessagesObject = await getThreadMessages(threads)
+                const channelMessagesObject = await getChannelMessages(messages, channel);
 
                 // Save messages in the specified format (Markdown by default, HTML if specified)
                 if (fileType == 'html') {
-                    saveToHtml(channel, listOfMessageObjects);
+                    saveToHtml(channel, channelMessagesObject);
                 } else {
-                    await saveToMarkdown(channel, listOfMessageObjects);
+                    await saveChannelToMarkdown(channel, channelMessagesObject);
+                    await saveThreadToMarkdown(channel, threadMessagesObject);
                 }
 
             } catch (e) {
-                console.log(`--- An error has occurred ---\n${e}`);
+                console.log(`--- An error has occurred ---\n${e.stack}`);
             }
 
 
