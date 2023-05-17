@@ -2,19 +2,17 @@
  * Clone remote repository, add, commit and push files.
  * Github will require username and password (token) during the first push. Then it's cached and not requested anymore.
  * Only triggered from main.js when user types "push".
- * @returns array of messages
 **/
-
-// @TODO: NEED TO MOVE ALL THE FILES + FIRS TO REPO BEFORE PUSHING
 
 const git = require('simple-git');
 const path = require('path');
 const fs = require('fs')
+const fsExtra = require('fs-extra');
 require('dotenv').config();
 
 const repoURL = process.env.REPO_URL
 
-module.exports = async function pushToGitHub(fileType) {
+async function pushToGitHub(fileType) {
     const outputDir = path.join(__dirname, '../output');
     const localPath = path.join(outputDir, 'clonedRepo');
 
@@ -28,12 +26,21 @@ module.exports = async function pushToGitHub(fileType) {
     const gitInstance = git(localPath);
 
     try {
-        // Move all files from output directory to clonedRepo directory
-        fs.readdirSync(outputDir).forEach(file => {
-            if (file.endsWith(`.${fileType}`)) {
-                const oldPath = path.join(outputDir, file);
-                const newPath = path.join(localPath, file);
-                fs.renameSync(oldPath, newPath);
+        // Move all files and directories from output directory to clonedRepo directory
+        fs.readdirSync(outputDir).forEach(fileOrDir => {
+            // Skip the clonedRepo directory
+            if (fileOrDir === 'clonedRepo') return;
+
+            const oldPath = path.join(outputDir, fileOrDir);
+            const newPath = path.join(localPath, fileOrDir);
+
+            // Check if it's a file or a directory
+            if (fs.statSync(oldPath).isFile()) {
+                if (fileOrDir.endsWith(`.${fileType}`)) {
+                    fs.renameSync(oldPath, newPath);
+                }
+            } else {
+                fsExtra.moveSync(oldPath, newPath);
             }
         });
 
@@ -53,4 +60,9 @@ module.exports = async function pushToGitHub(fileType) {
     } catch (error) {
         console.log('Error pushing to GitHub:', error);
     }
+}
+
+
+module.exports = {
+    pushToGitHub
 }

@@ -27,7 +27,7 @@ const fetchAllChannelMessages = require('./utils/fetchAllChannelMessages.js');
 const { getThreadMessages, getChannelMessages } = require('./utils/getMessages.js')
 const { saveChannelToMarkdown, saveThreadToMarkdown } = require('./utils/saveToMarkdown.js');
 const saveToHtml = require('./utils/saveToHtml.js');
-const pushToGitHub = require('./utils/pushToGithub.js');
+const { pushToGitHub } = require('./utils/pushToGithub.js');
 const args = process.argv.slice(2);
 const readline = require('readline');
 require('dotenv').config();
